@@ -208,6 +208,150 @@ const phrasesTemplate = [
                 { en: 'The food is delicious', local: 'Jevan khup chaan ahe', transliteration: 'Je-van khup chaan a-he', difficulty: 'beginner' }
             ]
         }
+    },
+    // GENERAL CONVERSATION
+    {
+        situation: 'General Conversation',
+        phrases: {
+            tamil: [
+                { en: 'Hello, how are you?', local: 'Vanakkam, epdi irukeenga?', transliteration: 'Va-nak-kam, ep-di i-ru-keen-ga', difficulty: 'beginner' },
+                { en: 'My name is...', local: 'En peyar...', transliteration: 'En pe-yar...', difficulty: 'beginner' },
+                { en: 'Nice to meet you', local: 'Ungalai sandhithadhil magizhchi', transliteration: 'Un-ga-lai san-dhi-tha-dhil ma-gizh-chi', difficulty: 'intermediate' },
+                { en: 'I am learning Tamil', local: 'Naan Tamil padikiren', transliteration: 'Naan Ta-mil pa-di-ki-ren', difficulty: 'beginner' },
+                { en: 'Can you help me?', local: 'Enaku udhavi seiya mudiyuma?', transliteration: 'E-na-ku u-dha-vi sei-ya mu-di-yu-ma', difficulty: 'beginner' }
+            ],
+            telugu: [
+                { en: 'Hello, how are you?', local: 'Namaskaram, ela unnaru?', transliteration: 'Na-mas-ka-ram, e-la un-na-ru', difficulty: 'beginner' },
+                { en: 'My name is...', local: 'Naa peru...', transliteration: 'Naa pe-ru...', difficulty: 'beginner' },
+                { en: 'Nice to meet you', local: 'Mimmalni kalavadam santhosham', transliteration: 'Mim-mal-ni ka-la-va-dam san-tho-sham', difficulty: 'intermediate' },
+                { en: 'I am learning Telugu', local: 'Nenu Telugu nerchukuntunnanu', transliteration: 'Ne-nu Te-lu-gu ner-chu-kun-tun-na-nu', difficulty: 'beginner' },
+                { en: 'Can you help me?', local: 'Naaku sahayam cheyagalara?', transliteration: 'Naa-ku sa-ha-yam che-ya-ga-la-ra', difficulty: 'beginner' }
+            ],
+            hindi: [
+                { en: 'Hello, how are you?', local: 'Namaste, aap kaise hain?', transliteration: 'Na-mas-te, aap kai-se hain', difficulty: 'beginner' },
+                { en: 'My name is...', local: 'Mera naam... hai', transliteration: 'Me-ra naam... hai', difficulty: 'beginner' },
+                { en: 'Nice to meet you', local: 'Aapse milkar accha laga', transliteration: 'Aap-se mil-kar ac-cha la-ga', difficulty: 'beginner' },
+                { en: 'I am learning Hindi', local: 'Main Hindi seekh raha hoon', transliteration: 'Main Hin-di seekh ra-ha hoon', difficulty: 'beginner' },
+                { en: 'Can you help me?', local: 'Kya aap meri madad kar sakte hain?', transliteration: 'Kya aap me-ri ma-dad kar sak-te hain', difficulty: 'beginner' }
+            ],
+            kannada: [
+                { en: 'Hello, how are you?', local: 'Namaskara, hegiddira?', transliteration: 'Na-mas-ka-ra, he-gid-di-ra', difficulty: 'beginner' },
+                { en: 'My name is...', local: 'Nanna hesaru...', transliteration: 'Nan-na he-sa-ru...', difficulty: 'beginner' },
+                { en: 'Nice to meet you', local: 'Mimmana nodi thumba santhosha', transliteration: 'Mim-ma-na no-di thum-ba san-tho-sha', difficulty: 'intermediate' },
+                { en: 'I am learning Kannada', local: 'Naanu Kannada kalitha iddini', transliteration: 'Naa-nu Kan-na-da ka-li-tha id-di-ni', difficulty: 'beginner' },
+                { en: 'Can you help me?', local: 'Nanage sahaya maduthira?', transliteration: 'Na-na-ge sa-ha-ya ma-du-thi-ra', difficulty: 'beginner' }
+            ],
+            malayalam: [
+                { en: 'Hello, how are you?', local: 'Namaskaram, sukhamaano?', transliteration: 'Na-mas-ka-ram, su-kha-maa-no', difficulty: 'beginner' },
+                { en: 'My name is...', local: 'Ente peru...', transliteration: 'En-te pe-ru...', difficulty: 'beginner' },
+                { en: 'Nice to meet you', local: 'Kandathil santhosham', transliteration: 'Kan-da-thil san-tho-sham', difficulty: 'intermediate' },
+                { en: 'I am learning Malayalam', local: 'Njan Malayalam padikkunnu', transliteration: 'Njan Ma-la-ya-lam pa-dik-kun-nu', difficulty: 'beginner' },
+                { en: 'Can you help me?', local: 'Enne sahayam cheyyamo?', transliteration: 'En-ne sa-ha-yam chey-ya-mo', difficulty: 'beginner' }
+            ],
+            marathi: [
+                { en: 'Hello, how are you?', local: 'Namaskar, tumhi kase ahat?', transliteration: 'Na-mas-kar, tum-hi ka-se a-hat', difficulty: 'beginner' },
+                { en: 'My name is...', local: 'Maze naav... ahe', transliteration: 'Ma-ze naav... a-he', difficulty: 'beginner' },
+                { en: 'Nice to meet you', local: 'Tumhala bhetun anand zala', transliteration: 'Tum-ha-la bhe-tun a-nand za-la', difficulty: 'intermediate' },
+                { en: 'I am learning Marathi', local: 'Mi Marathi shikat ahe', transliteration: 'Mi Ma-ra-thi shi-kat a-he', difficulty: 'beginner' },
+                { en: 'Can you help me?', local: 'Tumhi mala madat karal ka?', transliteration: 'Tum-hi ma-la ma-dat ka-ral ka', difficulty: 'beginner' }
+            ]
+        }
+    },
+    // MARKET
+    {
+        situation: 'Market',
+        phrases: {
+            tamil: [
+                { en: 'How much is this?', local: 'Idhu evlo?', transliteration: 'I-dhu ev-lo', difficulty: 'beginner' },
+                { en: 'Give me one kilo', local: 'Oru kilo kudunga', transliteration: 'O-ru ki-lo ku-dun-ga', difficulty: 'beginner' },
+                { en: 'It is too expensive', local: 'Idhu romba vilai', transliteration: 'I-dhu rom-ba vi-lai', difficulty: 'beginner' },
+                { en: 'Is it fresh?', local: 'Idhu fresh-a?', transliteration: 'I-dhu fresh-a', difficulty: 'beginner' },
+                { en: 'Do you have bags?', local: 'Bag irukka?', transliteration: 'Bag i-ruk-ka', difficulty: 'beginner' }
+            ],
+            telugu: [
+                { en: 'How much is this?', local: 'Idi entha?', transliteration: 'I-di en-tha', difficulty: 'beginner' },
+                { en: 'Give me one kilo', local: 'Okka kilo ivvandi', transliteration: 'Ok-ka ki-lo iv-van-di', difficulty: 'beginner' },
+                { en: 'It is too expensive', local: 'Idi chala ekkuva', transliteration: 'I-di cha-la ek-ku-va', difficulty: 'beginner' },
+                { en: 'Is it fresh?', local: 'Idi fresh aa?', transliteration: 'I-di fresh aa', difficulty: 'beginner' },
+                { en: 'Do you have bags?', local: 'Bag unda?', transliteration: 'Bag un-da', difficulty: 'beginner' }
+            ],
+            hindi: [
+                { en: 'How much is this?', local: 'Yeh kitne ka hai?', transliteration: 'Yeh kit-ne ka hai', difficulty: 'beginner' },
+                { en: 'Give me one kilo', local: 'Ek kilo dijiye', transliteration: 'Ek ki-lo di-ji-ye', difficulty: 'beginner' },
+                { en: 'It is too expensive', local: 'Yeh bahut mehnga hai', transliteration: 'Yeh ba-hut mehn-ga hai', difficulty: 'beginner' },
+                { en: 'Is it fresh?', local: 'Kya yeh taaza hai?', transliteration: 'Kya yeh taa-za hai', difficulty: 'beginner' },
+                { en: 'Do you have bags?', local: 'Kya bag hai?', transliteration: 'Kya bag hai', difficulty: 'beginner' }
+            ],
+            kannada: [
+                { en: 'How much is this?', local: 'Idhu yeshtu?', transliteration: 'I-dhu yesh-tu', difficulty: 'beginner' },
+                { en: 'Give me one kilo', local: 'Ondu kilo kodi', transliteration: 'On-du ki-lo ko-di', difficulty: 'beginner' },
+                { en: 'It is too expensive', local: 'Idhu thumba dubari', transliteration: 'I-dhu thum-ba du-ba-ri', difficulty: 'beginner' },
+                { en: 'Is it fresh?', local: 'Idhu fresh aa?', transliteration: 'I-dhu fresh aa', difficulty: 'beginner' },
+                { en: 'Do you have bags?', local: 'Bag idya?', transliteration: 'Bag id-ya', difficulty: 'beginner' }
+            ],
+            malayalam: [
+                { en: 'How much is this?', local: 'Ithinu entha vila?', transliteration: 'I-thi-nu en-tha vi-la', difficulty: 'beginner' },
+                { en: 'Give me one kilo', local: 'Oru kilo tharoo', transliteration: 'O-ru ki-lo tha-roo', difficulty: 'beginner' },
+                { en: 'It is too expensive', local: 'Ithu valare kooduthal aanu', transliteration: 'I-thu va-la-re koo-du-thal aa-nu', difficulty: 'beginner' },
+                { en: 'Is it fresh?', local: 'Ithu fresh aano?', transliteration: 'I-thu fresh aa-no', difficulty: 'beginner' },
+                { en: 'Do you have bags?', local: 'Bag undo?', transliteration: 'Bag un-do', difficulty: 'beginner' }
+            ],
+            marathi: [
+                { en: 'How much is this?', local: 'He kiti la ahe?', transliteration: 'He ki-ti la a-he', difficulty: 'beginner' },
+                { en: 'Give me one kilo', local: 'Ek kilo dya', transliteration: 'Ek ki-lo dya', difficulty: 'beginner' },
+                { en: 'It is too expensive', local: 'He khup mahag ahe', transliteration: 'He khup ma-hag a-he', difficulty: 'beginner' },
+                { en: 'Is it fresh?', local: 'He fresh ahe ka?', transliteration: 'He fresh a-he ka', difficulty: 'beginner' },
+                { en: 'Do you have bags?', local: 'Bag ahe ka?', transliteration: 'Bag a-he ka', difficulty: 'beginner' }
+            ]
+        }
+    },
+    // DOCTOR
+    {
+        situation: 'Doctor',
+        phrases: {
+            tamil: [
+                { en: 'I have a fever', local: 'Enaku kaachal', transliteration: 'E-na-ku kaa-chal', difficulty: 'beginner' },
+                { en: 'My stomach hurts', local: 'Vayiru valikudhu', transliteration: 'Va-yi-ru va-li-ku-dhu', difficulty: 'beginner' },
+                { en: 'Take this medicine', local: 'Indha maathirai eduthukonga', transliteration: 'In-dha maa-thi-rai e-du-thu-kon-ga', difficulty: 'intermediate' },
+                { en: 'Drink hot water', local: 'Sudu thanni kudinga', transliteration: 'Su-du than-ni ku-din-ga', difficulty: 'beginner' },
+                { en: 'Come back tomorrow', local: 'Naalaiki vaanga', transliteration: 'Naa-lai-ki vaan-ga', difficulty: 'beginner' }
+            ],
+            telugu: [
+                { en: 'I have a fever', local: 'Naaku jwaram ga undi', transliteration: 'Naa-ku jwa-ram ga un-di', difficulty: 'beginner' },
+                { en: 'My stomach hurts', local: 'Kadupu noppi ga undi', transliteration: 'Ka-du-pu nop-pi ga un-di', difficulty: 'beginner' },
+                { en: 'Take this medicine', local: 'Ee mandu vesukondi', transliteration: 'Ee man-du ve-su-kon-di', difficulty: 'intermediate' },
+                { en: 'Drink hot water', local: 'Vedi neellu thagandi', transliteration: 'Ve-di neel-lu tha-gan-di', difficulty: 'beginner' },
+                { en: 'Come back tomorrow', local: 'Repu randi', transliteration: 'Re-pu ran-di', difficulty: 'beginner' }
+            ],
+            hindi: [
+                { en: 'I have a fever', local: 'Mujhe bukhar hai', transliteration: 'Mu-jhe bu-khar hai', difficulty: 'beginner' },
+                { en: 'My stomach hurts', local: 'Mere pet mein dard hai', transliteration: 'Me-re pet mein dard hai', difficulty: 'beginner' },
+                { en: 'Take this medicine', local: 'Yeh dawai lijiye', transliteration: 'Yeh da-wai li-ji-ye', difficulty: 'intermediate' },
+                { en: 'Drink hot water', local: 'Garam paani pijiye', transliteration: 'Ga-ram paa-ni pi-ji-ye', difficulty: 'beginner' },
+                { en: 'Come back tomorrow', local: 'Kal aana', transliteration: 'Kal aa-na', difficulty: 'beginner' }
+            ],
+            kannada: [
+                { en: 'I have a fever', local: 'Nanage jvara ide', transliteration: 'Na-na-ge jva-ra i-de', difficulty: 'beginner' },
+                { en: 'My stomach hurts', local: 'Hotte novu ide', transliteration: 'Hot-te no-vu i-de', difficulty: 'beginner' },
+                { en: 'Take this medicine', local: 'Ee mathre thogolli', transliteration: 'Ee math-re tho-gol-li', difficulty: 'intermediate' },
+                { en: 'Drink hot water', local: 'Bisi neeru kudiri', transliteration: 'Bi-si nee-ru ku-di-ri', difficulty: 'beginner' },
+                { en: 'Come back tomorrow', local: 'Naale banni', transliteration: 'Naa-le ban-ni', difficulty: 'beginner' }
+            ],
+            malayalam: [
+                { en: 'I have a fever', local: 'Enikku pani aanu', transliteration: 'E-nik-ku pa-ni aa-nu', difficulty: 'beginner' },
+                { en: 'My stomach hurts', local: 'Vayar vedhana edukkunnu', transliteration: 'Va-yar ve-dha-na e-duk-kun-nu', difficulty: 'beginner' },
+                { en: 'Take this medicine', local: 'Ee marunnu kazhikku', transliteration: 'Ee ma-run-nu ka-zhik-ku', difficulty: 'intermediate' },
+                { en: 'Drink hot water', local: 'Choodu vellam kudikku', transliteration: 'Choo-du vel-lam ku-dik-ku', difficulty: 'beginner' },
+                { en: 'Come back tomorrow', local: 'Naale varoo', transliteration: 'Naa-le va-roo', difficulty: 'beginner' }
+            ],
+            marathi: [
+                { en: 'I have a fever', local: 'Mala taap ahe', transliteration: 'Ma-la taap a-he', difficulty: 'beginner' },
+                { en: 'My stomach hurts', local: 'Maze pot dukhat ahe', transliteration: 'Ma-ze pot du-khat a-he', difficulty: 'beginner' },
+                { en: 'Take this medicine', local: 'Hi aushadh ghya', transliteration: 'Hi au-shadh ghya', difficulty: 'intermediate' },
+                { en: 'Drink hot water', local: 'Garam paani pya', transliteration: 'Ga-ram paa-ni pya', difficulty: 'beginner' },
+                { en: 'Come back tomorrow', local: 'Udya ya', transliteration: 'Ud-ya ya', difficulty: 'beginner' }
+            ]
+        }
     }
 ];
 
@@ -221,6 +365,29 @@ const connectDB = async () => {
     }
 };
 
+// Achievements Data
+const achievementsData = [
+    // Levels
+    { code: 'LVL_5', name: 'Rising Star', description: 'Reach Level 5', icon: '⭐', type: 'level', requirement: 5, xpReward: 500 },
+    { code: 'LVL_10', name: 'Language Scholar', description: 'Reach Level 10', icon: '🎓', type: 'level', requirement: 10, xpReward: 1000 },
+    { code: 'LVL_20', name: 'Language Master', description: 'Reach Level 20', icon: '👑', type: 'level', requirement: 20, xpReward: 2000 },
+
+    // Streaks
+    { code: 'STR_3', name: 'Heating Up', description: 'Maintain a 3-day streak', icon: '🔥', type: 'streak', requirement: 3, xpReward: 100 },
+    { code: 'STR_7', name: 'On Fire', description: 'Maintain a 7-day streak', icon: '🚀', type: 'streak', requirement: 7, xpReward: 300 },
+    { code: 'STR_30', name: 'Unstoppable', description: 'Maintain a 30-day streak', icon: '💎', type: 'streak', requirement: 30, xpReward: 1000 },
+
+    // Milestones (Phrases)
+    { code: 'PHR_10', name: 'First Steps', description: 'Complete 10 phrases', icon: '👣', type: 'milestone', requirement: 10, xpReward: 50 },
+    { code: 'PHR_50', name: 'Getting Talkative', description: 'Complete 50 phrases', icon: '💬', type: 'milestone', requirement: 50, xpReward: 200 },
+    { code: 'PHR_100', name: 'Century Club', description: 'Complete 100 phrases', icon: '💯', type: 'milestone', requirement: 100, xpReward: 500 },
+
+    // Accuracy
+    { code: 'ACC_90', name: 'Sharp Ear', description: 'Achieve 90% accuracy in a session', icon: '🎯', type: 'accuracy', requirement: 90, xpReward: 100 }
+];
+
+import Achievement from '../models/Achievement.js';
+
 const seedDatabase = async () => {
     try {
         console.log('🌱 Starting database seeding...\n');
@@ -228,7 +395,12 @@ const seedDatabase = async () => {
         // Clear existing data
         await Language.deleteMany({});
         await Phrase.deleteMany({});
+        await Achievement.deleteMany({});
         console.log('🗑️  Cleared existing data\n');
+
+        // Insert Achievements
+        await Achievement.insertMany(achievementsData);
+        console.log(`🏆 Seeded ${achievementsData.length} achievements`);
 
         // Insert languages
         const languageCodeMap = {
@@ -254,6 +426,12 @@ const seedDatabase = async () => {
                 );
 
                 const phrasesForLang = situationData.phrases[languageKey];
+
+                if (!phrasesForLang) {
+                    console.error(`❌ Missing phrases for ${languageKey} in ${situationData.situation}`);
+                    continue;
+                }
+
 
                 for (let i = 0; i < phrasesForLang.length; i++) {
                     const phraseData = phrasesForLang[i];

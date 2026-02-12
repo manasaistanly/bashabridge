@@ -5,6 +5,8 @@ import Register from './pages/Register';
 import LanguageSelection from './pages/LanguageSelection';
 import Learning from './pages/Learning';
 import Dashboard from './pages/Dashboard';
+import Achievements from './pages/Achievements';
+import Chat from './pages/Chat';
 import Layout from './components/Layout';
 import './index.css';
 
@@ -37,6 +39,16 @@ function App() {
                     <Route path="/dashboard" element={
                         <ProtectedRoute>
                             <Dashboard />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/achievements" element={
+                        <ProtectedRoute>
+                            <Achievements />
+                        </ProtectedRoute>
+                    } />
+                    <Route path="/chat" element={
+                        <ProtectedRoute>
+                            <Chat />
                         </ProtectedRoute>
                     } />
 

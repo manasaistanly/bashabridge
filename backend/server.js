@@ -8,6 +8,9 @@ import authRoutes from './routes/auth.js';
 import languageRoutes from './routes/languages.js';
 import phraseRoutes from './routes/phrases.js';
 import progressRoutes from './routes/progress.js';
+import { router as achievementRoutes } from './routes/achievements.js';
+import challengeRoutes from './routes/challenges.js';
+import chatRoutes from './routes/chat.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
 // Load environment variables
@@ -39,10 +42,10 @@ if (process.env.NODE_ENV === 'development') {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     timestamp: new Date().toISOString(),
-    uptime: process.uptime() 
+    uptime: process.uptime()
   });
 });
 
@@ -51,12 +54,15 @@ app.use('/api/auth', authRoutes);
 app.use('/api/languages', languageRoutes);
 app.use('/api/phrases', phraseRoutes);
 app.use('/api/progress', progressRoutes);
+app.use('/api/achievements', achievementRoutes);
+app.use('/api/challenges', challengeRoutes);
+app.use('/api/chat', chatRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
-  res.status(404).json({ 
-    success: false, 
-    error: 'Route not found' 
+  res.status(404).json({
+    success: false,
+    error: 'Route not found'
   });
 });
 

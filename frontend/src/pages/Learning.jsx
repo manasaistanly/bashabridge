@@ -27,6 +27,10 @@ export default function Learning() {
 
     useEffect(() => {
         if (!selectedLanguage) navigate('/');
+        else if (selectedLanguage && situations.length === 0) {
+            // Fetch situations when language is selected
+            useLearningStore.getState().fetchSituations(selectedLanguage._id);
+        }
     }, [selectedLanguage, navigate]);
 
     const handleSituationSelect = async (situation) => {
@@ -164,10 +168,10 @@ export default function Learning() {
                                 onClick={handleStartListening}
                                 disabled={isListening}
                                 className={`w-full py-6 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${isListening
-                                        ? 'bg-red-500/10 text-red-400 border border-red-500/20 animate-pulse'
-                                        : userTranscript
-                                            ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
-                                            : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/20'
+                                    ? 'bg-red-500/10 text-red-400 border border-red-500/20 animate-pulse'
+                                    : userTranscript
+                                        ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                                        : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/20'
                                     }`}
                             >
                                 <Mic className="w-6 h-6" />
@@ -181,8 +185,8 @@ export default function Learning() {
                                         initial={{ opacity: 0, y: 10 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         className={`p-6 rounded-2xl border ${feedback.accuracy >= 70
-                                                ? 'bg-green-500/10 border-green-500/20 text-green-200'
-                                                : 'bg-orange-500/10 border-orange-500/20 text-orange-200'
+                                            ? 'bg-green-500/10 border-green-500/20 text-green-200'
+                                            : 'bg-orange-500/10 border-orange-500/20 text-orange-200'
                                             }`}
                                     >
                                         <div className="flex items-center gap-4 mb-2">
