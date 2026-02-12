@@ -53,9 +53,7 @@ export default function LanguageSelection() {
             {/* Navbar */}
             <nav className="flex justify-between items-center py-6 mb-12">
                 <div className="flex items-center gap-2">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                        <span className="text-2xl">🌏</span>
-                    </div>
+                    <img src="/logo.svg" alt="BhashaBridge" className="w-10 h-10 drop-shadow-lg" />
                     <span className="text-xl font-bold font-display tracking-tight">BhashaBridge</span>
                 </div>
 
@@ -122,8 +120,8 @@ export default function LanguageSelection() {
                                         {language.flag}
                                     </div>
                                     <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${language.difficulty === 'Easy' ? 'bg-green-500/20 text-green-300 border border-green-500/20' :
-                                            language.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/20' :
-                                                'bg-red-500/20 text-red-300 border border-red-500/20'
+                                        language.difficulty === 'Medium' ? 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/20' :
+                                            'bg-red-500/20 text-red-300 border border-red-500/20'
                                         }`}>
                                         {language.difficulty}
                                     </span>

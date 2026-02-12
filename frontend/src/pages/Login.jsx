@@ -28,9 +28,9 @@ export default function Login() {
                         initial={{ scale: 0.5, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ duration: 0.5 }}
-                        className="inline-block p-4 rounded-full bg-white/5 mb-6 border border-white/10"
+                        className="inline-block mb-6"
                     >
-                        <Globe className="w-12 h-12 text-indigo-400" />
+                        <img src="/logo.svg" alt="Logo" className="w-24 h-24 drop-shadow-2xl" />
                     </motion.div>
 
                     <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-white via-indigo-200 to-indigo-400 text-transparent bg-clip-text">
