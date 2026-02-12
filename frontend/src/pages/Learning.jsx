@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mic, Volume2, ArrowRight, ArrowLeft, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
 import useLearningStore from '../store/learningStore';
 import useAuthStore from '../store/authStore';
 import { phraseAPI } from '../services/api';
 
 export default function Learning() {
     const navigate = useNavigate();
-    const { user } = useAuthStore();
     const {
         selectedLanguage,
         selectedSituation,
@@ -24,11 +25,8 @@ export default function Learning() {
     const [feedback, setFeedback] = useState(null);
     const [isPlaying, setIsPlaying] = useState(false);
 
-    // Redirect if no language selected
     useEffect(() => {
-        if (!selectedLanguage) {
-            navigate('/');
-        }
+        if (!selectedLanguage) navigate('/');
     }, [selectedLanguage, navigate]);
 
     const handleSituationSelect = async (situation) => {
@@ -36,248 +34,185 @@ export default function Learning() {
         await fetchPhrases(selectedLanguage._id, situation.name);
     };
 
-    const currentPhrase = phrases[currentPhraseIndex];
-
-    // Text-to-Speech functionality
     const handlePlayPhrase = () => {
-        if ('speechSynthesis' in window && currentPhrase) {
+        if ('speechSynthesis' in window && phrases[currentPhraseIndex]) {
             setIsPlaying(true);
-            const utterance = new SpeechSynthesisUtterance(currentPhrase.local);
-
-            // Try to use Hindi/Indian voice if available
+            const utterance = new SpeechSynthesisUtterance(phrases[currentPhraseIndex].local);
             const voices = window.speechSynthesis.getVoices();
-            const indianVoice = voices.find(voice =>
-                voice.lang.startsWith('hi') || voice.lang.startsWith('ta')
-            );
-            if (indianVoice) {
-                utterance.voice = indianVoice;
-            }
-
-            utterance.rate = 0.8; // Slower for learning
+            const indianVoice = voices.find(v => v.lang.startsWith('hi') || v.lang.startsWith('ta'));
+            if (indianVoice) utterance.voice = indianVoice;
+            utterance.rate = 0.8;
             utterance.onend = () => setIsPlaying(false);
-
             window.speechSynthesis.speak(utterance);
-        } else {
-            alert('Text-to-Speech not supported in your browser');
         }
     };
 
-    // Speech Recognition functionality
     const handleStartListening = () => {
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
             const recognition = new SpeechRecognition();
-
             recognition.lang = selectedLanguage.code + '-IN';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-
-            recognition.onstart = () => {
-                setIsListening(true);
-                setUserTranscript('');
-                setFeedback(null);
-            };
-
-            recognition.onresult = async (event) => {
-                const transcript = event.results[0][0].transcript;
+            recognition.onstart = () => { setIsListening(true); setUserTranscript(''); setFeedback(null); };
+            recognition.onresult = async (e) => {
+                const transcript = e.results[0][0].transcript;
                 setUserTranscript(transcript);
-
-                // Submit to backend for comparison
                 try {
-                    const response = await phraseAPI.submitAttempt(currentPhrase._id, {
-                        userTranscript: transcript
-                    });
-
-                    setFeedback(response.data.data);
-                } catch (error) {
-                    console.error('Failed to submit attempt:', error);
-                    setFeedback({
-                        feedbackMessage: 'Error checking pronunciation. Please try again.',
-                        accuracy: 0
-                    });
-                }
+                    const res = await phraseAPI.submitAttempt(phrases[currentPhraseIndex]._id, { userTranscript: transcript });
+                    setFeedback(res.data.data);
+                } catch (err) { console.error(err); }
             };
-
-            recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-                setFeedback({
-                    feedbackMessage: 'Could not recognize speech. Please try again.',
-                    accuracy: 0
-                });
-            };
-
-            recognition.onend = () => {
-                setIsListening(false);
-            };
-
+            recognition.onend = () => setIsListening(false);
             recognition.start();
-        } else {
-            alert('Speech Recognition not supported in your browser. Please use Chrome or Edge.');
         }
     };
 
     if (!selectedLanguage) return null;
 
     return (
-        <div className="min-h-screen">
+        <div className="pb-12 min-h-[90vh] flex flex-col">
             {/* Header */}
-            <header className="bg-white shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                    <div className="flex items-center gap-4">
-                        <button onClick={() => navigate('/')} className="btn btn-secondary">
-                            ← Back
-                        </button>
-                        <div>
-                            <h1 className="text-xl font-bold text-primary-600">
-                                {selectedLanguage.flag} {selectedLanguage.name}
-                            </h1>
-                            {selectedSituation && (
-                                <p className="text-sm text-gray-600">Situation: {selectedSituation}</p>
-                            )}
-                        </div>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-sm text-gray-600">Learning as:</p>
-                        <p className="font-medium text-gray-800">{user?.firstName}</p>
-                    </div>
+            <header className="flex justify-between items-center py-6">
+                <button onClick={() => navigate('/')} className="btn-secondary px-4 py-2 rounded-xl flex items-center gap-2">
+                    <ArrowLeft className="w-4 h-4" /> Back
+                </button>
+                <div className="text-center">
+                    <h2 className="text-xl font-bold">{selectedLanguage.flag} {selectedLanguage.name}</h2>
+                    {selectedSituation && <span className="text-sm text-slate-400">{selectedSituation}</span>}
                 </div>
+                <div className="w-[88px]" /> {/* Spacer */}
             </header>
 
-            <div className="max-w-4xl mx-auto px-4 py-8">
-                {/* Situation Selection */}
-                {!selectedSituation && (
-                    <div>
-                        <h2 className="text-2xl font-bold text-gray-800 mb-6">Select a Situation</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {situations.map((situation, index) => (
-                                <button
-                                    key={index}
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col justify-center">
+                {!selectedSituation ? (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-4xl mx-auto w-full">
+                        <h2 className="text-3xl font-bold mb-8 text-center">Choose a Scenario</h2>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            {situations.map((situation, i) => (
+                                <motion.button
+                                    key={i}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: i * 0.1 }}
                                     onClick={() => handleSituationSelect(situation)}
-                                    className="card hover:shadow-lg transition-shadow text-left group"
+                                    className="glass-card p-8 text-left hover:bg-white/5 group"
                                 >
-                                    <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-primary-600">
-                                        {situation.name}
-                                    </h3>
-                                    <p className="text-gray-600">
-                                        {situation.phraseCount} phrases • {situation.difficulty}
-                                    </p>
-                                    <div className="mt-4 text-primary-600 font-medium">
-                                        Start Practice →
+                                    <h3 className="text-2xl font-bold mb-2">{situation.name}</h3>
+                                    <p className="text-slate-400 mb-6">{situation.phraseCount} phrases • {situation.difficulty}</p>
+                                    <div className="flex items-center gap-2 text-indigo-400 font-medium group-hover:gap-4 transition-all">
+                                        Start Practice <ArrowRight className="w-4 h-4" />
                                     </div>
-                                </button>
+                                </motion.button>
                             ))}
                         </div>
-                    </div>
-                )}
-
-                {/* Learning Interface */}
-                {selectedSituation && currentPhrase && (
-                    <div>
+                    </motion.div>
+                ) : phrases[currentPhraseIndex] && (
+                    <motion.div
+                        key={currentPhraseIndex}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="max-w-2xl mx-auto w-full"
+                    >
                         {/* Progress Bar */}
-                        <div className="mb-6">
-                            <div className="flex justify-between text-sm text-gray-600 mb-2">
-                                <span>Phrase {currentPhraseIndex + 1} of {phrases.length}</span>
-                                <span>{Math.round(((currentPhraseIndex + 1) / phrases.length) * 100)}% Complete</span>
+                        <div className="mb-8">
+                            <div className="h-1 bg-slate-800 rounded-full overflow-hidden">
+                                <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${((currentPhraseIndex + 1) / phrases.length) * 100}%` }}
+                                    className="h-full bg-indigo-500"
+                                />
                             </div>
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                                <div
-                                    className="bg-primary-600 h-2 rounded-full transition-all"
-                                    style={{ width: `${((currentPhraseIndex + 1) / phrases.length) * 100}%` }}
-                                ></div>
+                            <div className="flex justify-between mt-2 text-sm text-slate-500">
+                                <span>Phrase {currentPhraseIndex + 1}/{phrases.length}</span>
+                                <span>{Math.round(((currentPhraseIndex + 1) / phrases.length) * 100)}%</span>
                             </div>
                         </div>
 
-                        {/* Phrase Card */}
-                        <div className="card bg-gradient-to-br from-white to-primary-50 mb-6">
-                            <div className="text-center">
-                                <p className="text-gray-600 mb-2">English:</p>
-                                <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                                    "{currentPhrase.english}"
+                        {/* Learning Card */}
+                        <div className="glass-card p-10 rounded-[2rem] text-center mb-8 relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+
+                            <span className="inline-block px-3 py-1 rounded-full bg-slate-800 text-slate-400 text-xs font-semibold uppercase tracking-wider mb-6">
+                                English
+                            </span>
+                            <h3 className="text-2xl font-medium text-slate-300 mb-8">"{phrases[currentPhraseIndex].english}"</h3>
+
+                            <div className="py-8 border-t border-b border-white/5 mb-8 bg-slate-800/20 rounded-2xl mx-[-1rem] px-[1rem]">
+                                <h2 className="text-4xl md:text-5xl font-bold mb-4 font-display text-gradient">
+                                    {phrases[currentPhraseIndex].local}
                                 </h2>
-
-                                <p className="text-gray-600 mb-2">{selectedLanguage.name}:</p>
-                                <h3 className="text-4xl font-bold text-primary-600 mb-4">
-                                    {currentPhrase.local}
-                                </h3>
-
-                                <p className="text-gray-500 text-sm mb-6">
-                                    Pronunciation: {currentPhrase.transliteration}
+                                <p className="text-indigo-200/60 font-medium text-lg">
+                                    {phrases[currentPhraseIndex].transliteration}
                                 </p>
+                            </div>
 
-                                {/* Play Audio Button */}
+                            <div className="flex justify-center gap-4">
                                 <button
                                     onClick={handlePlayPhrase}
                                     disabled={isPlaying}
-                                    className="btn btn-primary text-lg px-8 py-3"
+                                    className="p-4 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/25 transition-all active:scale-95 disabled:opacity-50"
                                 >
-                                    {isPlaying ? '🔊 Playing...' : '🔊 Listen'}
+                                    <Volume2 className={`w-8 h-8 ${isPlaying ? 'animate-pulse' : ''}`} />
                                 </button>
                             </div>
                         </div>
 
-                        {/* Practice Section */}
-                        <div className="card mb-6">
-                            <h3 className="text-xl font-bold text-gray-800 mb-4">Your Turn!</h3>
-
+                        {/* Controls */}
+                        <div className="grid grid-cols-1 gap-4">
                             <button
                                 onClick={handleStartListening}
                                 disabled={isListening}
-                                className={`w-full py-6 rounded-lg font-bold text-lg ${isListening
-                                        ? 'bg-red-500 text-white animate-pulse'
-                                        : 'bg-primary-600 text-white hover:bg-primary-700'
+                                className={`w-full py-6 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition-all ${isListening
+                                        ? 'bg-red-500/10 text-red-400 border border-red-500/20 animate-pulse'
+                                        : userTranscript
+                                            ? 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                                            : 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-500/20'
                                     }`}
                             >
-                                {isListening ? '🎤 Listening...' : '🎤 Start Speaking'}
+                                <Mic className="w-6 h-6" />
+                                {isListening ? 'Listening...' : userTranscript ? 'Try Again' : 'Tap to Speak'}
                             </button>
 
-                            {userTranscript && (
-                                <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                                    <p className="text-sm text-gray-600">You said:</p>
-                                    <p className="text-lg font-medium text-gray-800">"{userTranscript}"</p>
-                                </div>
-                            )}
-
-                            {feedback && (
-                                <div className={`mt-4 p-6 rounded-lg ${feedback.accuracy >= 70 ? 'bg-green-50 border-2 border-green-200' : 'bg-yellow-50 border-2 border-yellow-200'
-                                    }`}>
-                                    <div className="text-center">
-                                        <p className="text-3xl font-bold mb-2">
-                                            {feedback.accuracy}% Accurate
-                                        </p>
-                                        <p className="text-lg mb-4">{feedback.feedbackMessage}</p>
-                                        {feedback.xpEarned > 0 && (
-                                            <p className="text-primary-600 font-bold">
-                                                +{feedback.xpEarned} XP Earned! 🎉
-                                            </p>
-                                        )}
-                                    </div>
-                                </div>
-                            )}
+                            {/* Feedback Area */}
+                            <AnimatePresence>
+                                {feedback && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className={`p-6 rounded-2xl border ${feedback.accuracy >= 70
+                                                ? 'bg-green-500/10 border-green-500/20 text-green-200'
+                                                : 'bg-orange-500/10 border-orange-500/20 text-orange-200'
+                                            }`}
+                                    >
+                                        <div className="flex items-center gap-4 mb-2">
+                                            {feedback.accuracy >= 70 ? <CheckCircle className="w-6 h-6" /> : <AlertCircle className="w-6 h-6" />}
+                                            <span className="text-2xl font-bold">{feedback.accuracy}% Match</span>
+                                        </div>
+                                        <p className="text-sm opacity-80">{feedback.feedbackMessage}</p>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                         </div>
 
                         {/* Navigation */}
-                        <div className="flex justify-between">
+                        <div className="flex justify-between mt-8">
                             <button
                                 onClick={previousPhrase}
                                 disabled={currentPhraseIndex === 0}
-                                className="btn btn-secondary disabled:opacity-50"
+                                className="btn-secondary px-6 py-3 rounded-xl disabled:opacity-30"
                             >
-                                ← Previous
+                                Previous
                             </button>
-
-                            <button onClick={() => setSituation(null)} className="btn btn-secondary">
-                                Change Situation
-                            </button>
-
                             <button
                                 onClick={nextPhrase}
                                 disabled={currentPhraseIndex === phrases.length - 1}
-                                className="btn btn-primary disabled:opacity-50"
+                                className="btn-secondary px-6 py-3 rounded-xl disabled:opacity-30 flex items-center gap-2"
                             >
-                                Next →
+                                Next <ArrowRight className="w-4 h-4" />
                             </button>
                         </div>
-                    </div>
+                    </motion.div>
                 )}
             </div>
         </div>

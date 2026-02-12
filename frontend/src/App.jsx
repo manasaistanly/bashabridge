@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import LanguageSelection from './pages/LanguageSelection';
 import Learning from './pages/Learning';
 import Dashboard from './pages/Dashboard';
+import Layout from './components/Layout';
 import './index.css';
 
 // Protected Route wrapper
@@ -16,7 +17,7 @@ function ProtectedRoute({ children }) {
 function App() {
     return (
         <BrowserRouter>
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+            <Layout>
                 <Routes>
                     {/* Public routes */}
                     <Route path="/login" element={<Login />} />
@@ -42,7 +43,7 @@ function App() {
                     {/* Redirect to login by default */}
                     <Route path="*" element={<Navigate to="/login" />} />
                 </Routes>
-            </div>
+            </Layout>
         </BrowserRouter>
     );
 }

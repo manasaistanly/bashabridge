@@ -47,6 +47,8 @@ Frontend will run on `http://localhost:5173`
 - **Zustand** - State management
 - **Axios** - HTTP client
 - **Tailwind CSS** - Styling
+- **Framer Motion** - Animations
+- **Lucide React** - Icons
 - **Web Speech API** - Speech recognition and synthesis
 
 ## Project Structure

@@ -1,7 +1,28 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Trophy, Star, Target, Zap, TrendingUp, Calendar, ArrowLeft, LogOut } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import { progressAPI } from '../services/api';
+
+const StatCard = ({ icon: Icon, label, value, subtext, color = "indigo" }) => (
+    <motion.div
+        whileHover={{ y: -5 }}
+        className="glass-card p-6 rounded-2xl relative overflow-hidden"
+    >
+        <div className={`absolute top-0 right-0 p-4 opacity-5 text-${color}-500/20`}>
+            <Icon className="w-24 h-24" />
+        </div>
+        <div className="relative z-10">
+            <div className={`w-12 h-12 rounded-xl bg-${color}-500/10 flex items-center justify-center mb-4 text-${color}-400`}>
+                <Icon className="w-6 h-6" />
+            </div>
+            <p className="text-slate-400 text-sm mb-1">{label}</p>
+            <h3 className="text-3xl font-bold font-display">{value}</h3>
+            {subtext && <p className="text-xs text-slate-500 mt-2">{subtext}</p>}
+        </div>
+    </motion.div>
+);
 
 export default function Dashboard() {
     const navigate = useNavigate();
@@ -9,196 +30,122 @@ export default function Dashboard() {
     const [progress, setProgress] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadProgress();
-    }, []);
+    useEffect(() => { loadProgress(); }, []);
 
     const loadProgress = async () => {
         try {
-            const response = await progressAPI.getOverall();
-            setProgress(response.data.data);
-        } catch (error) {
-            console.error('Failed to load progress:', error);
-        } finally {
-            setLoading(false);
-        }
+            const res = await progressAPI.getOverall();
+            setProgress(res.data.data);
+        } finally { setLoading(false); }
     };
 
     const getLevelProgress = () => {
         if (!user) return 0;
-        // Each level requires 500 XP
         const xpForCurrentLevel = user.totalXP % 500;
         return (xpForCurrentLevel / 500) * 100;
     };
 
     return (
-        <div className="min-h-screen">
-            {/* Header */}
-            <header className="bg-white shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold text-primary-600">📊 Dashboard</h1>
-                    <div className="flex gap-3">
-                        <button onClick={() => navigate('/')} className="btn btn-secondary">
-                            ← Languages
-                        </button>
-                        <button onClick={logout} className="btn btn-secondary">
-                            Logout
-                        </button>
-                    </div>
-                </div>
-            </header>
+        <div className="pb-12">
+            <nav className="flex justify-between items-center py-6 mb-8">
+                <button onClick={() => navigate('/')} className="btn-secondary px-4 py-2 rounded-xl flex items-center gap-2">
+                    <ArrowLeft className="w-4 h-4" /> Back to Languages
+                </button>
+                <button onClick={logout} className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400">
+                    <LogOut className="w-5 h-5" />
+                </button>
+            </nav>
 
-            <div className="max-w-7xl mx-auto px-4 py-8">
-                {/* Welcome Section */}
-                <div className="card bg-gradient-to-br from-primary-500 to-primary-700 text-white mb-8">
-                    <h2 className="text-3xl font-bold mb-2">
-                        Welcome back, {user?.firstName}! 👋
-                    </h2>
-                    <p className="text-primary-100">
-                        Keep up the great work on your language learning journey
+            {/* Welcome Hero */}
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="glass-card p-8 rounded-3xl mb-8 bg-gradient-to-r from-indigo-600/20 to-purple-600/20 border-indigo-500/20 relative overflow-hidden"
+            >
+                <div className="relative z-10">
+                    <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.firstName}! 👋</h1>
+                    <p className="text-indigo-200 mb-6 max-w-xl">
+                        You're doing great! Keep up the momentum to reach your next level.
                     </p>
-                </div>
 
-                {loading ? (
-                    <div className="text-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-                        <p className="mt-4 text-gray-600">Loading your progress...</p>
+                    <div className="max-w-md">
+                        <div className="flex justify-between text-sm mb-2 text-indigo-200">
+                            <span>Level {user?.level || 1}</span>
+                            <span>{500 - (user?.totalXP % 500)} XP to next level</span>
+                        </div>
+                        <div className="h-3 bg-black/20 rounded-full overflow-hidden backdrop-blur-sm">
+                            <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${getLevelProgress()}%` }}
+                                transition={{ duration: 1, delay: 0.5 }}
+                                className="h-full bg-gradient-to-r from-indigo-400 to-pink-400"
+                            />
+                        </div>
                     </div>
-                ) : (
-                    <>
-                        {/* Stats Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                            {/* Level Card */}
-                            <div className="card bg-gradient-to-br from-purple-50 to-purple-100">
-                                <div className="text-center">
-                                    <p className="text-sm text-purple-600 mb-2">Level</p>
-                                    <p className="text-4xl font-bold text-purple-700 mb-2">
-                                        {user?.level || 1}
-                                    </p>
-                                    <div className="w-full bg-purple-200 rounded-full h-2 mb-2">
-                                        <div
-                                            className="bg-purple-600 h-2 rounded-full transition-all"
-                                            style={{ width: `${getLevelProgress()}%` }}
-                                        ></div>
+                </div>
+            </motion.div>
+
+            {loading ? (
+                <div className="flex justify-center p-12"><div className="animate-spin text-indigo-500 w-8 h-8 rounded-full border-2 border-current border-t-transparent" /></div>
+            ) : (
+                <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                        <StatCard icon={Trophy} label="Total XP" value={user?.totalXP || 0} color="yellow" />
+                        <StatCard icon={Zap} label="Current Streak" value={`${user?.currentStreak || 0} Days`} color="orange" />
+                        <StatCard icon={Target} label="Phrases Mastered" value={progress?.totalPhrasesCompleted || 0} color="green" />
+                        <StatCard icon={Star} label="Total Attempts" value={progress?.totalAttempts || 0} color="purple" />
+                    </div>
+
+                    <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5 text-indigo-400" />
+                        Learning Activity
+                    </h2>
+
+                    <div className="grid gap-4">
+                        {progress?.progressByLanguage.map((lang, i) => (
+                            <motion.div
+                                key={i}
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: i * 0.1 }}
+                                className="glass-card p-6 rounded-2xl flex items-center justify-between"
+                            >
+                                <div className="flex items-center gap-4">
+                                    <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl">
+                                        {lang.language?.flag}
                                     </div>
-                                    <p className="text-xs text-purple-600">
-                                        {500 - (user?.totalXP % 500)} XP to Level {(user?.level || 1) + 1}
-                                    </p>
+                                    <div>
+                                        <h3 className="font-bold text-lg">{lang.language?.name}</h3>
+                                        <p className="text-slate-400 text-sm">{lang.situation}</p>
+                                    </div>
                                 </div>
-                            </div>
 
-                            {/* Total XP Card */}
-                            <div className="card bg-gradient-to-br from-blue-50 to-blue-100">
-                                <div className="text-center">
-                                    <p className="text-sm text-blue-600 mb-2">Total XP</p>
-                                    <p className="text-4xl font-bold text-blue-700">
-                                        {user?.totalXP || 0}
-                                    </p>
+                                <div className="flex items-center gap-8">
+                                    <div className="text-right">
+                                        <p className="text-xs text-slate-500 uppercase tracking-wider">Accuracy</p>
+                                        <p className={`font-bold font-display ${lang.averageAccuracy >= 80 ? 'text-green-400' : 'text-yellow-400'
+                                            }`}>{lang.averageAccuracy}%</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="text-xs text-slate-500 uppercase tracking-wider">XP Earned</p>
+                                        <p className="font-bold font-display text-indigo-400">+{lang.xpEarned}</p>
+                                    </div>
                                 </div>
-                            </div>
+                            </motion.div>
+                        ))}
+                    </div>
 
-                            {/* Streak Card */}
-                            <div className="card bg-gradient-to-br from-orange-50 to-orange-100">
-                                <div className="text-center">
-                                    <p className="text-sm text-orange-600 mb-2">Current Streak</p>
-                                    <p className="text-4xl font-bold text-orange-700">
-                                        🔥 {user?.currentStreak || 0}
-                                    </p>
-                                    <p className="text-xs text-orange-600">days</p>
-                                </div>
-                            </div>
-
-                            {/* Phrases Completed Card */}
-                            <div className="card bg-gradient-to-br from-green-50 to-green-100">
-                                <div className="text-center">
-                                    <p className="text-sm text-green-600 mb-2">Phrases Completed</p>
-                                    <p className="text-4xl font-bold text-green-700">
-                                        {progress?.totalPhrasesCompleted || 0}
-                                    </p>
-                                </div>
-                            </div>
+                    {(!progress?.progressByLanguage || progress.progressByLanguage.length === 0) && (
+                        <div className="text-center py-12 glass-card rounded-3xl border-dashed border-2 border-slate-700">
+                            <Calendar className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                            <p className="text-slate-400">No activity yet. Start your first lesson!</p>
+                            <button onClick={() => navigate('/')} className="mt-4 btn-primary px-6 py-2 rounded-xl text-sm">
+                                Start Learning
+                            </button>
                         </div>
-
-                        {/* Learning Summary */}
-                        <div className="card mb-8">
-                            <h3 className="text-xl font-bold text-gray-800 mb-4">Learning Summary</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                                <div>
-                                    <p className="text-2xl font-bold text-primary-600">
-                                        {progress?.languagesLearning || 0}
-                                    </p>
-                                    <p className="text-sm text-gray-600">Languages</p>
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold text-primary-600">
-                                        {progress?.totalAttempts || 0}
-                                    </p>
-                                    <p className="text-sm text-gray-600">Total Attempts</p>
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold text-primary-600">
-                                        {progress?.totalPhrasesCompleted || 0}
-                                    </p>
-                                    <p className="text-sm text-gray-600">Phrases Mastered</p>
-                                </div>
-                                <div>
-                                    <p className="text-2xl font-bold text-primary-600">
-                                        {user?.level || 1}
-                                    </p>
-                                    <p className="text-sm text-gray-600">Current Level</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Progress by Language */}
-                        {progress?.progressByLanguage && progress.progressByLanguage.length > 0 && (
-                            <div className="card">
-                                <h3 className="text-xl font-bold text-gray-800 mb-4">
-                                    Progress by Language
-                                </h3>
-                                <div className="space-y-4">
-                                    {progress.progressByLanguage.map((lang, index) => (
-                                        <div key={index} className="p-4 bg-gray-50 rounded-lg">
-                                            <div className="flex justify-between items-center mb-2">
-                                                <div>
-                                                    <p className="font-bold text-gray-800">
-                                                        {lang.language?.name} - {lang.situation}
-                                                    </p>
-                                                    <p className="text-sm text-gray-600">
-                                                        {lang.phrasesCompleted} phrases • {lang.averageAccuracy}% avg accuracy
-                                                    </p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-primary-600 font-bold">+{lang.xpEarned} XP</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {/* No Progress Yet */}
-                        {(!progress?.progressByLanguage || progress.progressByLanguage.length === 0) && (
-                            <div className="card text-center py-12">
-                                <p className="text-5xl mb-4">📚</p>
-                                <h3 className="text-xl font-bold text-gray-800 mb-2">
-                                    Start Your Learning Journey!
-                                </h3>
-                                <p className="text-gray-600 mb-6">
-                                    You haven't started learning yet. Choose a language to begin!
-                                </p>
-                                <button
-                                    onClick={() => navigate('/')}
-                                    className="btn btn-primary text-lg px-8"
-                                >
-                                    Choose Language
-                                </button>
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
+                    )}
+                </>
+            )}
         </div>
     );
 }
