@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Mic, Send, Volume2, Globe, Bot, User } from 'lucide-react';
+import { ArrowLeft, Mic, Send, Volume2, Globe, Bot, User, Sparkles, StopCircle, RefreshCw } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import useLearningStore from '../store/learningStore';
 import api from '../services/api';
@@ -15,15 +15,24 @@ export default function Chat() {
     const [inputText, setInputText] = useState('');
     const [isListening, setIsListening] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+    const [isSpeaking, setIsSpeaking] = useState(false);
     const messagesEndRef = useRef(null);
     const recognitionRef = useRef(null);
 
-    // Initial greeting
+    // Initial greeting and language check
     useEffect(() => {
-        if (!selectedLanguage) {
-            // If no language selected, fetch and start with the first one or prompt
+        // Always fetch languages if we don't have them all (e.g. initial load or stale state)
+        if (languages.length < 2) {
             fetchLanguages();
-        } else {
+        }
+
+        if (!selectedLanguage && languages.length > 0) {
+            setLanguage(languages[0]);
+        }
+    }, [languages.length, selectedLanguage, fetchLanguages, setLanguage]);
+
+    useEffect(() => {
+        if (selectedLanguage) {
             setMessages([
                 {
                     id: 1,
@@ -34,17 +43,15 @@ export default function Chat() {
                 }
             ]);
         }
-    }, [selectedLanguage]);
+    }, [selectedLanguage?._id]);
 
     // Initialize Speech Recognition
     useEffect(() => {
         if ('webkitSpeechRecognition' in window) {
             const recognition = new window.webkitSpeechRecognition();
             recognition.continuous = false;
-            recognition.interimResults = false;
+            recognition.interimResults = true;
 
-            // Set language code based on selected language if possible, else default to English/Mix
-            // Ideally we map selectedLanguage.code to BCP 47 tags (e.g., 'ta-IN', 'hi-IN')
             const langCodeMap = {
                 'ta': 'ta-IN', 'te': 'te-IN', 'hi': 'hi-IN',
                 'kn': 'kn-IN', 'ml': 'ml-IN', 'mr': 'mr-IN'
@@ -52,9 +59,13 @@ export default function Chat() {
             recognition.lang = selectedLanguage ? langCodeMap[selectedLanguage.code] || 'en-US' : 'en-US';
 
             recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
+                const transcript = Array.from(event.results)
+                    .map(result => result[0].transcript)
+                    .join('');
                 setInputText(transcript);
-                setIsListening(false);
+                if (event.results[0].isFinal) {
+                    setIsListening(false);
+                }
             };
 
             recognition.onerror = (event) => {
@@ -70,13 +81,29 @@ export default function Chat() {
         }
     }, [selectedLanguage]);
 
+    // Load speech synthesis voices
+    useEffect(() => {
+        if (window.speechSynthesis) {
+            const loadVoices = () => {
+                const voices = window.speechSynthesis.getVoices();
+                console.log('Loaded', voices.length, 'voices');
+            };
+
+            if (window.speechSynthesis.getVoices().length === 0) {
+                window.speechSynthesis.onvoiceschanged = loadVoices;
+            } else {
+                loadVoices();
+            }
+        }
+    }, []);
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [messages, isLoading]);
 
     const handleSendMessage = async (e) => {
         e.preventDefault();
@@ -109,8 +136,6 @@ export default function Chat() {
             };
 
             setMessages(prev => [...prev, aiMessage]);
-
-            // Auto play audio
             speakText(data.audio, selectedLanguage.code);
 
         } catch (error) {
@@ -132,115 +157,220 @@ export default function Chat() {
 
     const speakText = (text, langCode) => {
         if (!text) return;
+
         window.speechSynthesis.cancel();
+
         const utterance = new SpeechSynthesisUtterance(text);
-        // Try to match voice
-        // Note: Browser support for Indian languages varies
-        utterance.lang = langCode === 'hi' ? 'hi-IN' :
-            langCode === 'ta' ? 'ta-IN' :
-                langCode === 'te' ? 'te-IN' : 'en-IN';
+        setIsSpeaking(true);
+
+        const langMap = {
+            'hi': 'hi-IN', 'ta': 'ta-IN', 'te': 'te-IN',
+            'kn': 'kn-IN', 'ml': 'ml-IN', 'mr': 'mr-IN',
+            'bn': 'bn-IN', 'gu': 'gu-IN', 'pa': 'pa-IN', 'ur': 'ur-IN'
+        };
+
+        utterance.lang = langMap[langCode] || 'en-IN';
+        utterance.rate = 0.9;
+
+        const voices = window.speechSynthesis.getVoices();
+        const selectedVoice = voices.find(v => v.lang.startsWith(langCode) || v.lang === langMap[langCode]);
+
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+        } else {
+            console.warn(`Native voice for ${langCode} not found. Using fallback.`);
+        }
+
+        utterance.onend = () => setIsSpeaking(false);
+        utterance.onerror = () => setIsSpeaking(false);
+
         window.speechSynthesis.speak(utterance);
     };
 
     return (
-        <div className="h-screen flex flex-col pb-6 px-4 md:px-0 max-w-4xl mx-auto">
+        <div className="h-screen flex flex-col relative overflow-hidden bg-slate-950 text-white">
+            {/* Animated Background */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_0%,rgba(79,70,229,0.15),transparent_50%)]" />
+                <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full blur-3xl opacity-30 animate-pulse" />
+                <div className="absolute top-1/2 left-0 w-[300px] h-[300px] bg-blue-600/10 rounded-full blur-3xl opacity-30 animate-pulse delay-700" />
+            </div>
+
             {/* Header */}
-            <div className="flex items-center justify-between py-4 border-b border-white/10 mb-4">
-                <div className="flex items-center gap-3">
-                    <button onClick={() => navigate('/dashboard')} className="p-2 rounded-xl hover:bg-white/10">
-                        <ArrowLeft className="w-5 h-5 text-slate-400" />
-                    </button>
-                    <div>
-                        <h1 className="font-bold text-xl flex items-center gap-2">
-                            <Bot className="w-6 h-6 text-indigo-400" />
-                            AI Tutor
-                        </h1>
-                        <p className="text-xs text-slate-400">Practicing {selectedLanguage?.name}</p>
+            <header className="relative z-10 px-4 py-4 md:px-8 border-b border-white/5 bg-slate-900/50 backdrop-blur-md">
+                <div className="max-w-4xl mx-auto flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => navigate('/dashboard')}
+                            className="p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5"
+                            aria-label="Back to Dashboard"
+                        >
+                            <ArrowLeft className="w-5 h-5 text-slate-300" />
+                        </motion.button>
+                        <div>
+                            <h1 className="font-bold text-xl flex items-center gap-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+                                <Sparkles className="w-5 h-5 text-indigo-400" />
+                                AI Tutor
+                            </h1>
+                            <div className="flex items-center gap-2 text-sm text-slate-400">
+                                <span className={`w-2 h-2 rounded-full ${isLoading ? 'bg-yellow-400 animate-pulse' : 'bg-green-400'}`}></span>
+                                {isLoading ? 'Generating response...' : `Practicing ${selectedLanguage?.name}`}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Language Switcher */}
+                    <div className="flex gap-2 bg-slate-800/50 p-1.5 rounded-xl border border-white/5">
+                        {languages.map(lang => (
+                            <motion.button
+                                key={lang._id}
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => setLanguage(lang)}
+                                className={`w-8 h-8 flex items-center justify-center rounded-lg transition-all ${selectedLanguage?._id === lang._id ? 'bg-white/10 shadow-lg scale-110' : 'opacity-40 hover:opacity-100'}`}
+                                title={lang.name}
+                                aria-label={`Switch to ${lang.name}`}
+                            >
+                                <span className="text-xl">{lang.flag}</span>
+                            </motion.button>
+                        ))}
                     </div>
                 </div>
-
-                {/* Language Switcher Mini */}
-                <div className="flex gap-2">
-                    {languages.map(lang => (
-                        <button
-                            key={lang._id}
-                            onClick={() => setLanguage(lang)}
-                            className={`text-2xl opacity-50 hover:opacity-100 transition-opacity ${selectedLanguage?._id === lang._id ? 'opacity-100 scale-110' : ''}`}
-                            title={lang.name}
-                        >
-                            {lang.flag}
-                        </button>
-                    ))}
-                </div>
-            </div>
+            </header>
 
             {/* Chat Area */}
-            <div className="flex-1 overflow-y-auto space-y-4 pr-2 mb-4 scrollbar-hide">
-                {messages.map((msg) => (
-                    <motion.div
-                        key={msg.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                        <div className={`max-w-[80%] rounded-2xl p-4 ${msg.sender === 'user'
-                                ? 'bg-indigo-600 text-white rounded-tr-sm'
-                                : 'bg-slate-800 text-slate-200 rounded-tl-sm'
-                            }`}>
-                            <div className="mb-1 text-lg font-medium">{msg.text}</div>
+            <main className="flex-1 overflow-y-auto px-4 md:px-0 scroll-smooth relative z-0">
+                <div className="max-w-3xl mx-auto py-6 space-y-6">
+                    <AnimatePresence initial={false}>
+                        {messages.map((msg) => (
+                            <motion.div
+                                key={msg.id}
+                                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                transition={{ duration: 0.3 }}
+                                className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                            >
+                                <div className={`flex gap-3 max-w-[85%] md:max-w-[75%] ${msg.sender === 'user' ? 'flex-row-reverse' : 'flex-row'}`}>
+                                    {/* Avatar */}
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mt-1 shadow-lg ${msg.sender === 'user'
+                                        ? 'bg-gradient-to-br from-indigo-500 to-purple-600'
+                                        : 'bg-gradient-to-br from-emerald-500 to-teal-600'
+                                        }`}>
+                                        {msg.sender === 'user' ? <User className="w-4 h-4 text-white" /> : <Bot className="w-4 h-4 text-white" />}
+                                    </div>
 
-                            {msg.sender === 'ai' && (
-                                <div className="border-t border-white/10 pt-2 mt-2">
-                                    <p className="text-sm text-slate-400 italic mb-2">{msg.translation}</p>
-                                    <button
-                                        onClick={() => speakText(msg.audio, selectedLanguage?.code)}
-                                        className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors inline-flex"
-                                    >
-                                        <Volume2 className="w-4 h-4 text-indigo-400" />
-                                    </button>
+                                    {/* Bubble */}
+                                    <div className={`p-4 rounded-2xl shadow-xl backdrop-blur-sm border ${msg.sender === 'user'
+                                        ? 'bg-indigo-600/90 text-white rounded-tr-none border-indigo-500/30'
+                                        : 'bg-slate-800/80 text-slate-100 rounded-tl-none border-white/10'
+                                        }`}>
+                                        <p className="text-lg leading-relaxed">{msg.text}</p>
+
+                                        {msg.sender === 'ai' && (
+                                            <div className="mt-3 pt-3 border-t border-white/10">
+                                                <p className="text-sm text-emerald-300 font-medium mb-1">Translation:</p>
+                                                <p className="text-sm text-slate-300 italic mb-3">{msg.translation}</p>
+
+                                                <motion.button
+                                                    whileHover={{ scale: 1.1 }}
+                                                    whileTap={{ scale: 0.9 }}
+                                                    onClick={() => speakText(msg.audio, selectedLanguage?.code)}
+                                                    className={`p-2 rounded-full transition-all flex items-center gap-2 text-xs font-semibold ${isSpeaking
+                                                        ? 'bg-emerald-500/20 text-emerald-300 ring-1 ring-emerald-500/50'
+                                                        : 'bg-white/10 hover:bg-white/20 text-slate-300'
+                                                        }`}
+                                                    aria-label="Listen to pronunciation"
+                                                >
+                                                    {isSpeaking ? (
+                                                        <>
+                                                            <StopCircle className="w-4 h-4 animate-pulse" />
+                                                            <span>Playing...</span>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Volume2 className="w-4 h-4" />
+                                                            <span>Listen</span>
+                                                        </>
+                                                    )}
+                                                </motion.button>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            )}
-                        </div>
-                    </motion.div>
-                ))}
-                {isLoading && (
-                    <div className="flex justify-start">
-                        <div className="bg-slate-800 rounded-2xl p-4 rounded-tl-sm flex gap-2 items-center">
-                            <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" />
-                            <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-75" />
-                            <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce delay-150" />
-                        </div>
-                    </div>
-                )}
-                <div ref={messagesEndRef} />
-            </div>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+
+                    {/* Typing Indicator */}
+                    {isLoading && (
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="flex justify-start pl-12"
+                        >
+                            <div className="bg-slate-800/50 backdrop-blur border border-white/5 rounded-2xl rounded-tl-none p-4 flex items-center gap-1.5 shadow-lg">
+                                <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                                <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                                <span className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"></span>
+                            </div>
+                        </motion.div>
+                    )}
+                    <div ref={messagesEndRef} className="h-4" />
+                </div>
+            </main>
 
             {/* Input Area */}
-            <form onSubmit={handleSendMessage} className="relative glass-card bg-slate-800/50 p-2 rounded-2xl flex items-center gap-2">
-                <button
-                    type="button"
-                    onClick={toggleListening}
-                    className={`p-3 rounded-xl transition-all ${isListening ? 'bg-red-500/20 text-red-400 animate-pulse' : 'bg-white/5 text-slate-400 hover:bg-white/10'}`}
-                >
-                    <Mic className="w-5 h-5" />
-                </button>
+            <div className="relative z-10 p-4 md:p-6 bg-gradient-to-t from-slate-950 to-transparent">
+                <div className="max-w-3xl mx-auto">
+                    <form onSubmit={handleSendMessage} className="relative group">
+                        <div className={`absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl opacity-20 group-hover:opacity-40 transition duration-500 blur ${isListening ? 'opacity-50 animate-pulse' : ''}`}></div>
+                        <div className="relative flex items-center gap-2 bg-slate-900/90 backdrop-blur-xl p-2 rounded-2xl border border-white/10 shadow-2xl">
 
-                <input
-                    type="text"
-                    value={inputText}
-                    onChange={(e) => setInputText(e.target.value)}
-                    placeholder={isListening ? "Listening..." : "Type or speak..."}
-                    className="flex-1 bg-transparent border-none outline-none text-white placeholder-slate-500 px-2"
-                />
+                            <motion.button
+                                type="button"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                onClick={toggleListening}
+                                className={`p-3 rounded-xl transition-all ${isListening
+                                    ? 'bg-red-500/20 text-red-500 ring-1 ring-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)]'
+                                    : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
+                                    }`}
+                                title={isListening ? "Stop Listening" : "Start Voice Input"}
+                                aria-label={isListening ? "Stop Listening" : "Start Voice Input"}
+                            >
+                                <Mic className={`w-5 h-5 ${isListening ? 'animate-pulse' : ''}`} />
+                            </motion.button>
 
-                <button
-                    type="submit"
-                    disabled={!inputText.trim() || isLoading}
-                    className="p-3 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                    <Send className="w-5 h-5" />
-                </button>
-            </form>
+                            <input
+                                type="text"
+                                value={inputText}
+                                onChange={(e) => setInputText(e.target.value)}
+                                placeholder={isListening ? "Listening..." : `Message in ${selectedLanguage?.name || 'English'}...`}
+                                className="flex-1 bg-transparent border-none outline-none text-white placeholder-slate-500 px-2 py-2 text-lg"
+                                disabled={isLoading}
+                                aria-label="Type your message"
+                            />
+
+                            <motion.button
+                                type="submit"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                                disabled={!inputText.trim() || isLoading}
+                                className="p-3 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600 transition-all shadow-lg shadow-indigo-500/20"
+                                aria-label="Send Message"
+                            >
+                                <Send className="w-5 h-5" />
+                            </motion.button>
+                        </div>
+                    </form>
+                    <p className="text-center text-xs text-slate-500 mt-3">
+                        AI can make mistakes. Review generated translations.
+                    </p>
+                </div>
+            </div>
         </div>
     );
 }
